@@ -1,0 +1,73 @@
+%{
+#include "korhan.erdogdu-hw3.tab.h"
+#include <stdlib.h>
+#include <string.h>
+
+extern int yylineno;
+
+%}
+
+%option noyywrap
+
+%%
+
+"Meeting"                 { return tSTARTMEETING; }
+"endMeeting"              { return tENDMEETING; }
+"subMeetings"            { return tSTARTSUBMEETINGS; }
+"endSubMeetings"         { return tENDSUBMEETINGS; }
+"meetingNumber"          { return tMEETINGNUMBER; }
+"description"            { return tDESCRIPTION; }
+"startDate"              { return tSTARTDATE; }
+"startTime"              { return tSTARTTIME; }
+"endDate"                { return tENDDATE; }
+"endTime"                { return tENDTIME; }
+"locations"              { return tLOCATIONS; }
+"isRecurring"            { return tISRECURRING; }
+"frequency"              { return tFREQUENCY; }
+"repetitionCount"        { return tREPETITIONCOUNT; }
+
+"daily"                  { return tDAILY; }
+"weekly"                 { return tWEEKLY; }
+"monthly"                { return tMONTHLY; }
+"yearly"                 { return tYEARLY; }
+
+"yes"                    { return tYES; }
+"no"                     { return tNO; }
+
+"="                      { return tASSIGN; }
+","                      { return tCOMMA; }
+
+[0-9]{2}"."[0-9]{2}"."[0-9]{4} {
+    yylval.str = strdup(yytext);
+    return tDATE;
+}
+
+[0-9]{2}"."[0-9]{2} {
+    yylval.str = strdup(yytext);
+    return tTIME;
+}
+
+[0-9]+ {
+    yylval.num = atoi(yytext);
+    return tINTEGER;
+}
+
+\"[^\"]*\" {
+    yylval.str = strdup(yytext);
+    return tSTRING;
+}
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    yylval.str = strdup(yytext);
+    return tIDENTIFIER;
+}
+
+"//".*      { /* ignore single-line comments */ }
+"/*"([^*]|\*+[^*/])*\*+\/  { /* ignore multiline comments */ }
+
+\n          { yylineno++; }
+[ \t\r]+    { /* skip whitespace */ }
+
+.           { return yytext[0]; }
+
+%%
